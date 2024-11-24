@@ -4,8 +4,8 @@
 ## Pytorch Environment
 * Pytorch=1.10.1
 # CheckPoints
-* The checkpoint for Gait3D [link]().
-* The checkpoint for GREW [link]().
+* The checkpoint for Gait3D [link](https://pan.baidu.com/s/13hU74ax6ca95m_xArheuwQ?pwd=g1wp).
+* The checkpoint for GREW [link](https://pan.baidu.com/s/1Hsbf6_78nedfwac_0iKgHA?pwd=6g46).
 # Train and Test
 ## Train
 ```
