@@ -56,8 +56,6 @@ class Baseline_spp(BaseModel):
 
         n, _, s, h, w = sils.size()
 
-        bnn = self.BNNecks.fc_bin[:, :, labs].permute(2, 1, 0).contiguous().float()  # [n,c,p] [p,c,class]
-
         if self.training:
             embed_2, logits = self.BNNecks(embed_1)  # [n, c, p]
             retval = {
