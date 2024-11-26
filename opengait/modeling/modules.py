@@ -216,78 +216,7 @@ class SeparateFCs(nn.Module):
             out = x.matmul(self.fc_bin)
         return out.permute(1, 2, 0).contiguous()
 
-class SeparateFCs_FQ(nn.Module):
-    def __init__(self, parts_num, in_channels, out_channels, norm=False):
-        super(SeparateFCs_FQ, self).__init__()
-        self.p = parts_num
-        self.fc_bin = nn.Parameter(
-            nn.init.xavier_uniform_(
-                torch.zeros(parts_num, in_channels, out_channels)))
-        self.fc = nn.Linear(128,1)
-        self.sig = nn.Sigmoid()
-        self.norm = norm
 
-    def forward(self, x):
-        """
-            x: [n, c_in, p]
-            out: [n, c_out, p]
-        """
-        x = x.permute(2, 0, 1).contiguous()
-        if self.norm:
-            out = x.matmul(F.normalize(self.fc_bin, dim=1))
-        else:
-            out = x.matmul(self.fc_bin)     #[p , n, c]
-
-        out1 = self.fc(out)
-        out1 = self.sig(out1)
-        out = out.permute(1, 2, 0).contiguous()
-        out1 = out1.permute(1, 2, 0).contiguous()
-        return out, out1
-
-class HP_FQB(nn.Module):
-    def __init__(self, bin_num=None):
-        super(HP_FQB, self).__init__()
-        if bin_num is None:
-            bin_num = [16, 8, 4, 2, 1]
-        self.bin_num = bin_num
-        #self.fc1 = nn.Linear(256,128)
-        self.fc2 = nn.Linear(256,256)
-        self.relu = nn.ReLU(inplace=True)
-        self.fc3 = nn.Linear(256,256)
-        self.sig = nn.Sigmoid()
-
-    def fm(self, att):
-        att_max = torch.max(att,dim=-1)[0].unsqueeze(-1)
-        att_min = torch.min(att,dim=-1)[0].unsqueeze(-1)
-        att = (att - att_min + 0.1) / (att_max - att_min + 0.1)
-        return att
-
-    def forward(self, x):
-        """
-            x  : [n, c, s, h, w]
-            ret: [n, p, s, c]
-        """
-        n, c, s = x.size()[:3]
-        features = []
-        for b in self.bin_num:
-            z = x.view(n, c, s, b, -1)
-            z = z.mean(-1) + z.max(-1)[0]
-            features.append(z)
-        features = torch.cat(features, -1) #[n, c, s, p]
-        features = features.permute(0,3,2,1) #[n,p,s,c]
-
-        att0 = self.fc2(features)
-        att1 = self.relu(att0)
-        att2 = self.fc3(att1)
-        att = self.sig(att2)    # n,p,s,c
-        # att = torch.mean(att, dim=-1, keepdim=True)
-        # att = self.fm(att)
-        features = features*att
-
-        #att = None
-        features = torch.max(features, dim=2)[0]
-        features = features.permute(0,2,1) #[n,c,p]
-        return features,att
 
 class SeparateBNNecks(nn.Module):
     """
