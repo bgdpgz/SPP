@@ -228,8 +228,8 @@ class SPP_main(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.conv1 = BasicConv2d(in_channel, self.inplanes, 3, 1, 1)
 
-        self.layer1 = self._make_layer_P3D(block_map['BasicBlockP3D'], channels[0], layers[0], strides[0])
-        self.layer2 = self._make_layer_P3D(block_map['BasicBlockP3D'], channels[1], layers[1], strides[1])
+        self.layer1 = self._make_layer_P3D(block3D, channels[0], layers[0], strides[0])
+        self.layer2 = self._make_layer_P3D(block3D, channels[1], layers[1], strides[1])
         self.layer3 = self._make_layer_P3D(block3D, channels[2], layers[2], strides[2])
         self.layer4 = self._make_layer_P3D(block3D, channels[3], layers[3], strides[3])
         self._initialize_weights()
